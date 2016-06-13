@@ -61,6 +61,10 @@ public class ChatUser implements Serializable {
     String email;
     boolean online;
     
+    public ChatUser() {
+        
+    }
+    
     public ChatUser(int id, String username, String email, String status, boolean online) {
         this.id = id;
         this.username = username;

@@ -102,6 +102,18 @@ public class ClientConnection extends Thread {
             case "FRIEND_REQUEST":
                 beginFriendRequest(inputPackage);
                 break;
+            case "FRIEND_LIST":
+                beginFriendList(inputPackage);
+                break;
+            case "STATUS":
+                beginStatus(inputPackage);
+                break;
+            case "CONVERSATION":
+                beginConversation(inputPackage);
+                break;
+            case "MESSAGE":
+                beginMessage(inputPackage);
+                break;
             default:
                 break;
 
@@ -134,6 +146,7 @@ public class ClientConnection extends Thread {
         if (id_temp != 0) {
             login.setConfirm(true);
             login.setId(id_temp);
+            login.setUser(ChatDatabase.getChatUser(id_temp));
             sendObject(login);
 
             isLoggedIn = true;
@@ -205,14 +218,51 @@ public class ClientConnection extends Thread {
             }
 
         } else { //if request is false then it is an answer
-             
             if (request.isAccept()) {
                 ChatDatabase.acceptFriendRequest(id, request.getUserSender());
             } else {
                 ChatDatabase.deleteFriend(id, request.getUserSender());
             }
             
+            ChatDatabase.SendObject(request, request.getUserSender());
+            
         }
 
     }
+    
+    public void beginFriendList(ChatPackage inputPackage) {
+        
+        PackageFriendList friendList = (PackageFriendList) inputPackage;
+        
+        ChatDatabase.getFriendList(id, friendList.getFriends(), friendList.getPendingFriends());
+        sendObject(friendList);
+    }
+
+    private void beginStatus(ChatPackage inputPackage) {
+        
+        PackageStatus status = (PackageStatus) inputPackage;
+        
+        if (status.getFriend_id() == 0) {
+            ChatDatabase.changeStatus(status.getId(), status.getStatus());
+        } else {                             
+            ChatDatabase.SendObject(status, status.getFriend_id());
+        }
+    }
+
+    private void beginConversation(ChatPackage inputPackage) {
+        PackageConversation con = (PackageConversation) inputPackage;
+        
+        ChatDatabase.getConversation(con);
+        sendObject(con);
+    }
+
+    private void beginMessage(ChatPackage inputPackage) {
+        
+        PackageMessage message = (PackageMessage) inputPackage;
+        
+        ChatDatabase.addMessage(message.getId_con(), message.getMessage());
+        ChatDatabase.SendObject(message, message.getReceiver());
+    }
+    
+    
 }

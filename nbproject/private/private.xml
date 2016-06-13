@@ -3,12 +3,13 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/Huzky/Documents/NetBeansProjects/ChatServer/src/chatserver/ChatServerUI.java</file>
             <file>file:/C:/Users/Huzky/Documents/NetBeansProjects/ChatServer/src/chatserver/ClientConnection.java</file>
             <file>file:/C:/Users/Huzky/Documents/NetBeansProjects/ChatServer/src/chatserver/ChatDatabase.java</file>
-            <file>file:/C:/Users/Huzky/Documents/NetBeansProjects/ChatServer/src/chatserver/ChatServer.java</file>
-            <file>file:/C:/Users/Huzky/Documents/NetBeansProjects/ChatServer/src/chatpackage/PackageLogin.java</file>
-            <file>file:/C:/Users/Huzky/Documents/NetBeansProjects/ChatServer/src/chatpackage/PackageRegister.java</file>
+            <file>file:/C:/Users/Huzky/Documents/NetBeansProjects/ChatServer/src/chatpackage/PackageStatus.java</file>
+            <file>file:/C:/Users/Huzky/Documents/NetBeansProjects/ChatServer/src/chatpackage/PackageMessage.java</file>
+            <file>file:/C:/Users/Huzky/Documents/NetBeansProjects/ChatServer/src/chatpackage/PackageFriendList.java</file>
+            <file>file:/C:/Users/Huzky/Documents/NetBeansProjects/ChatServer/src/chatpackage/ChatMessage.java</file>
+            <file>file:/C:/Users/Huzky/Documents/NetBeansProjects/ChatServer/src/chatpackage/PackageConversation.java</file>
             <file>file:/C:/Users/Huzky/Documents/NetBeansProjects/ChatServer/src/chatserver/ChatClientUI.java</file>
         </group>
     </open-files>

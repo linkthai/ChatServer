@@ -17,6 +17,16 @@ public class PackageLogin extends ChatPackage {
     private String username;
     private String password;
     
+    private ChatUser user;
+
+    public ChatUser getUser() {
+        return user;
+    }
+
+    public void setUser(ChatUser user) {
+        this.user = user;
+    }
+    
     private boolean confirm;
 
     public int getId() {
@@ -54,7 +64,8 @@ public class PackageLogin extends ChatPackage {
     
     public PackageLogin() {
         this.type = "LOGIN";
-        confirm = false;
+        this.confirm = false;
+        this.user = new ChatUser();
     }
     
 }
