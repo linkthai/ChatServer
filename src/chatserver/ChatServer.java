@@ -28,9 +28,10 @@ public class ChatServer {
     JTextArea txt_log = null;
 
     public boolean startServer() {
-        
-        if (!ChatDatabase.StartConnection())
+
+        if (!ChatDatabase.StartConnection()) {
             return false;
+        }
 
         try {
             serverSocket = new ServerSocket(PORT_NUMBER);
@@ -68,6 +69,12 @@ public class ChatServer {
         Socket socket;
         ClientConnection client;
 
+        Thread.UncaughtExceptionHandler h = new Thread.UncaughtExceptionHandler() {
+            public void uncaughtException(Thread th, Throwable ex) {
+                return;
+            }
+        };
+
         @Override
         public void run() {
             while (true) {
@@ -78,9 +85,15 @@ public class ChatServer {
 
                 try {
                     socket = serverSocket.accept();
-                    writeLog("HELLO");
                     client = new ClientConnection(socket);
+                    client.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+                        public void uncaughtException(Thread th, Throwable ex) {
+                            System.out.println("WriteLog");
+                            return;
+                        }
+                    });
                     client.start();
+                    writeLog("NEW CLIENT DETECTED!");
                 } catch (IOException ex) {
                     Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, null, ex);
                 } finally {

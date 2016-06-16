@@ -43,6 +43,7 @@ public class PackageConversation extends ChatPackage {
     private ArrayList<ChatMessage> conversation;
     private int id_userA;
     private int id_userB;
+    private int message_not_seen = 0;
 
     public int getId_userA() {
         return id_userA;
@@ -59,7 +60,6 @@ public class PackageConversation extends ChatPackage {
     public void setId_userB(int id_userB) {
         this.id_userB = id_userB;
     }
-    private int message_not_seen = 0;
     
     public PackageConversation() {
         this.type = "CONVERSATION";

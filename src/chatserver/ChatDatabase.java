@@ -8,6 +8,7 @@ package chatserver;
 import chatpackage.ChatMessage;
 import chatpackage.ChatUser;
 import chatpackage.PackageConversation;
+import chatpackage.PackageStatus;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -66,7 +67,10 @@ public class ChatDatabase {
 
     public static void UnregisterClient(ClientConnection client) {
         clientList.remove(client.getClientId(), client);
-        JOptionPane.showMessageDialog(null, client.getUsername());
+    }
+
+    public static void UnregisterClient(int id) {
+        clientList.remove(id);
     }
 
     public static boolean CheckOnlineStatus(int id) {
@@ -403,6 +407,8 @@ public class ChatDatabase {
         } catch (SQLException ex) {
             Logger.getLogger(ChatDatabase.class.getName()).log(Level.SEVERE, null, ex);
         }
+
+        sendStatus(id, status);
     }
 
     static public void getConversation(PackageConversation con) {
@@ -433,7 +439,7 @@ public class ChatDatabase {
     }
 
     static public ArrayList<ChatMessage> parseConversation(String str_con) {
-        
+
         ArrayList<ChatMessage> conversation = new ArrayList();
 
         String[] parts = str_con.split("[|]");
@@ -456,7 +462,7 @@ public class ChatDatabase {
 
             conversation.add(message);
         }
-        
+
         return conversation;
     }
 
@@ -466,6 +472,7 @@ public class ChatDatabase {
 
         try {
             stmt = conn.createStatement();
+
             result = stmt.executeQuery("select * from " + CON + " where id_con='" + id_con + "'");
 
             if (result.next()) {
@@ -474,11 +481,83 @@ public class ChatDatabase {
                 str_con += "|";
                 str_con += message.getType();
                 str_con += "|";
-                str_con += message.getMessage();
+                str_con += message.getContent();
                 str_con += "|";
-                
+
                 stmt.execute("update " + CON + " set message='" + str_con + "' where id_con='" + id_con + "'");
             }
+
+            stmt.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(ChatDatabase.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    static public ArrayList<Integer> getFriendIds(int id) {
+        Statement stmt = null;
+        ResultSet result = null;
+        ArrayList<Integer> friendIds = new ArrayList();
+
+        try {
+            stmt = conn.createStatement();
+            result = stmt.executeQuery("select * from " + FRIEND + " where userA=" + id);
+
+            while (result.next()) {
+                friendIds.add(result.getInt("USERB"));
+            }
+
+            stmt.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(ChatDatabase.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return friendIds;
+    }
+
+    public static void sendStatus(int id, String str_status) {
+        ArrayList<Integer> friendIds = getFriendIds(id);
+        PackageStatus status = new PackageStatus(id, str_status);
+        friendIds.stream().forEach((i) -> {
+            status.setFriend_id(i);
+            SendObject(status, i);
+        });
+    }
+
+    static public void logoutUser(int id) {
+        UnregisterClient(id);
+
+        sendStatus(id, "OFFLINE");
+    }
+
+    static void setNotSeen(String id_con, int id_user) {
+        Statement stmt = null;
+        ResultSet result = null;
+
+        try {
+            stmt = conn.createStatement();
+
+            result = stmt.executeQuery("select * from " + FRIEND + " where id_con='" + id_con + "' and userB=" + id_user);
+
+            if (result.next()) {
+                int message_not_seen = result.getInt("MESSAGE_NOT_SEEN");
+                message_not_seen++;
+
+                stmt.execute("update " + FRIEND + " set message_not_seen=" + message_not_seen + " where id_con='" + id_con + "' and userB=" + id_user);
+            }
+
+            stmt.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(ChatDatabase.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    static void setSeen(String id_con, int id_user) {
+        Statement stmt = null;
+
+        try {
+            stmt = conn.createStatement();
+
+            stmt.execute("update " + FRIEND + " set message_not_seen=" + 0 + " where id_con='" + id_con + "' and userA=" + id_user);
 
             stmt.close();
         } catch (SQLException ex) {

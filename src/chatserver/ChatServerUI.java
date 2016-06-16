@@ -102,8 +102,8 @@ public class ChatServerUI extends javax.swing.JFrame {
         if (!server.startServer())
             return;
         
-        initClient(false);
-        initClient(true);
+        //initClient(false);
+        //initClient(true);
         btn_start.setEnabled(false);
     }//GEN-LAST:event_btn_startActionPerformed
 

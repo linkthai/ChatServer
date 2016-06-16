@@ -200,7 +200,7 @@ public class ChatClientUI extends javax.swing.JFrame {
                 id_con = con.getId_con();
                 ArrayList<ChatMessage> conversation = con.getConversation();
                 for (int i = 0; i < conversation.size(); i++) {
-                    text += conversation.get(i).getSender() + ":" + conversation.get(i).getMessage() + "\n";
+                    text += conversation.get(i).getSender() + ":" + conversation.get(i).getContent() + "\n";
                 }
                 
                 log.setText(text);
@@ -209,7 +209,7 @@ public class ChatClientUI extends javax.swing.JFrame {
                 PackageMessage message = (PackageMessage) inputPackage;
                 
                 if (message.getReceiver() == client_id) {
-                    text += message.getSender() + ":" + message.getMessage().getMessage() + "\n";
+                    text += message.getSender() + ":" + message.getMessage().getContent() + "\n";
                 }
                 
                 log.setText(text);

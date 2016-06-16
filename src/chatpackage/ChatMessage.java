@@ -18,7 +18,7 @@ public class ChatMessage implements Serializable {
     
     Date date;
     private String type = "";
-    private String message = "";
+    private String content = "";
 
     public Date getDate() {
         return date;
@@ -36,12 +36,12 @@ public class ChatMessage implements Serializable {
         this.type = type;
     }
 
-    public String getMessage() {
-        return message;
+    public String getContent() {
+        return content;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
+    public void setContent(String content) {
+        this.content = content;
     }
 
     public int getSender() {
@@ -56,7 +56,7 @@ public class ChatMessage implements Serializable {
     
     public ChatMessage(int sender, String message) {
         this.type = "TEXT";
-        this.message = message;
+        this.content = message;
         this.date = new Date();
         this.sender = sender;
     }
