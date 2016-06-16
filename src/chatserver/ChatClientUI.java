@@ -189,10 +189,10 @@ public class ChatClientUI extends javax.swing.JFrame {
             case "STATUS":
                 PackageStatus status = (PackageStatus) inputPackage;
                 
-                if (status.getFriend_id() == client_id)
-                {
-                    JOptionPane.showMessageDialog(null, "FRIEND IS " + status.getStatus());
-                }
+//                if (status.getFriend_id() == client_id)
+//                {
+//                    JOptionPane.showMessageDialog(null, "FRIEND IS " + status.getStatus());
+//                }
                 break;
             case "CONVERSATION":
                 PackageConversation con = (PackageConversation) inputPackage;
@@ -574,13 +574,6 @@ public class ChatClientUI extends javax.swing.JFrame {
         
         PackageStatus status = new PackageStatus(client_id, cmbx_status.getSelectedItem().toString());
         sendObject(status);
-        
-        //if the friend_id != 0 you sent it to friends
-        for (ChatUser friend : friends) {
-            status = new PackageStatus(client_id, cmbx_status.getSelectedItem().toString());
-            status.setFriend_id(friend.getId());
-            sendObject(status);
-        }
     }//GEN-LAST:event_cmbx_statusActionPerformed
 
     private void text_messageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_text_messageActionPerformed

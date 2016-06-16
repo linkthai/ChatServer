@@ -279,9 +279,9 @@ public class ChatDatabase {
         try {
             stmt = conn.createStatement();
             stmt.execute("insert into " + FRIEND + "(userA, userB, id_con, message_not_seen, confirm) "
-                    + "values (" + userSender + "," + userReceiver + ",'" + newConversation + "',1, true)");
+                    + "values (" + userSender + "," + userReceiver + ",'" + newConversation + "',0, true)");
             stmt.execute("insert into " + FRIEND + "(userA, userB, id_con, message_not_seen, confirm) "
-                    + "values (" + userReceiver + "," + userSender + ",'" + newConversation + "',1, false)");
+                    + "values (" + userReceiver + "," + userSender + ",'" + newConversation + "',0, false)");
             stmt.close();
 
         } catch (SQLException ex) {
@@ -518,7 +518,6 @@ public class ChatDatabase {
         ArrayList<Integer> friendIds = getFriendIds(id);
         PackageStatus status = new PackageStatus(id, str_status);
         friendIds.stream().forEach((i) -> {
-            status.setFriend_id(i);
             SendObject(status, i);
         });
     }
