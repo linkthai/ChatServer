@@ -47,11 +47,20 @@ public class GroupConversation implements Serializable {
     public void setMessage_not_seen(int message_not_seen) {
         this.message_not_seen = message_not_seen;
     }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
     
     private ArrayList<ChatMessage> conversation;    
     private ArrayList<ChatUser> list_user;
     private String id_con;
     private int message_not_seen;
+    private String name;
     
     public GroupConversation() {
         

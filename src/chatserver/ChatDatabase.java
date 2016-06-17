@@ -820,6 +820,9 @@ public class ChatDatabase {
                 ArrayList<ChatMessage> conversation = parseConversation(result_sub.getString("MESSAGE"));
                 con.setConversation(conversation);
                 
+                String name = result_sub.getString("NAME");
+                con.setName(name);
+                
                 list_grpCon.add(con);
                 
             }
