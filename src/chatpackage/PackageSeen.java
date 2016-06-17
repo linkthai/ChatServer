@@ -15,6 +15,15 @@ public class PackageSeen extends ChatPackage {
     
     String id_con;
     int id_user;
+    boolean groupConversation;
+
+    public boolean isGroupConversation() {
+        return groupConversation;
+    }
+
+    public void setGroupConversation(boolean groupConversation) {
+        this.groupConversation = groupConversation;
+    }
 
     public String getId_con() {
         return id_con;

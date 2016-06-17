@@ -108,6 +108,9 @@ public class ClientConnection extends Thread {
             case "SEEN":
                 beginSeen(inputPackage);
                 break;
+            case "GROUP_CONVERSATION":
+                beginGroupConversation(inputPackage);
+                break;
             case "LOGOUT":
                 beginLogout(inputPackage);
                 break;
@@ -207,9 +210,10 @@ public class ClientConnection extends Thread {
 
         //if request is true then it is a sent request
         if (request.isRequest() == true) {
-            
-            if (ChatDatabase.checkIsFriend(request.getUserSender(), request.getUserReceiver()))
+
+            if (ChatDatabase.checkIsFriend(request.getUserSender(), request.getUserReceiver())) {
                 return;
+            }
 
             ChatDatabase.sendFriendRequest(request.getUserSender(), request.getUserReceiver());
 
@@ -244,9 +248,9 @@ public class ClientConnection extends Thread {
         PackageStatus status = (PackageStatus) inputPackage;
 
         //if (status.getFriend_id() == 0) {
-            ChatDatabase.changeStatus(status.getId(), status.getStatus());
+        ChatDatabase.changeStatus(status.getId(), status.getStatus());
         //} else {
-            //ChatDatabase.SendObject(status, status.getFriend_id());
+        //ChatDatabase.SendObject(status, status.getFriend_id());
         //}
     }
 
@@ -260,10 +264,19 @@ public class ClientConnection extends Thread {
     private void beginMessage(ChatPackage inputPackage) {
 
         PackageMessage message = (PackageMessage) inputPackage;
-
         ChatDatabase.addMessage(message.getId_con(), message.getMessage());
-        ChatDatabase.setNotSeen(message.getId_con(), id);
-        ChatDatabase.SendObject(message, message.getReceiver());
+
+        if (message.isGroupMessage()) {
+            ChatDatabase.setNotSeenGroup(message.getId_con(), id);
+            ArrayList<Integer> grp_list = ChatDatabase.getGroupMembers(message.getId_con());
+            for (Integer i : grp_list) {
+                ChatDatabase.SendObject(message, i);
+            }
+
+        } else {
+            ChatDatabase.setNotSeen(message.getId_con(), id);
+            ChatDatabase.SendObject(message, message.getReceiver());
+        }
     }
 
     private void beginLogout(ChatPackage inputPackage) {
@@ -295,8 +308,60 @@ public class ClientConnection extends Thread {
 
     private void beginSeen(ChatPackage inputPackage) {
         PackageSeen seen = (PackageSeen) inputPackage;
-        
-        ChatDatabase.setSeen(seen.getId_con(), seen.getId_user());
+
+        if (seen.isGroupConversation())
+        {
+            ChatDatabase.setSeenGroup(seen.getId_con(), seen.getId_user());
+        }
+        else
+        {
+            ChatDatabase.setSeen(seen.getId_con(), seen.getId_user());
+        }
+    }
+
+    private void beginGroupConversation(ChatPackage inputPackage) {
+        PackageGroupConversation group = (PackageGroupConversation) inputPackage;
+        ArrayList<Integer> grp_list = ChatDatabase.getGroupMembers(group.getId_con());
+        boolean flag = false;
+
+        switch (group.getAction()) {
+            case "CREATE":
+                String newCon = ChatDatabase.createGroup(group.getId_sender(), group.getName());
+                group.setId_con(newCon);
+                sendObject(group);
+                break;
+            case "RENAME":
+                flag = ChatDatabase.renameGroup(group.getId_sender(), group.getId_con(), group.getName());
+                break;
+            case "ADD":
+                flag = ChatDatabase.addUser(group.getId_sender(), group.getId_con(), group.getId_receiver());
+                break;
+            case "KICK":
+                flag = ChatDatabase.kickUser(group.getId_sender(), group.getId_con(), group.getId_receiver());
+                break;
+            case "LEAVE":
+                flag = ChatDatabase.leaveConversation(group.getId_sender(), group.getId_con());
+                break;
+            case "PASS_MASTER":
+                flag = ChatDatabase.passMaster(group.getId_sender(), group.getId_con(), group.getId_receiver());
+                break;
+            case "DELETE":
+                flag = ChatDatabase.deleteGroup(group.getId_sender(), group.getId_con());
+                break;
+            case "CONVERSATION":
+                ArrayList<GroupConversation> list_con;
+                list_con = ChatDatabase.getGroupConversation(group.getId_sender());
+                group.setList_con(list_con);
+                sendObject(group);
+                break;
+        }
+
+        if (flag) {
+            for (Integer i : grp_list) {
+                ChatDatabase.SendObject(group, i);
+            }
+        }
+
     }
 
 }

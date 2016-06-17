@@ -7,6 +7,7 @@ package chatserver;
 
 import chatpackage.ChatMessage;
 import chatpackage.ChatUser;
+import chatpackage.GroupConversation;
 import chatpackage.PackageConversation;
 import chatpackage.PackageStatus;
 import java.sql.Connection;
@@ -19,7 +20,6 @@ import java.util.HashMap;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.util.Pair;
 import javax.swing.JOptionPane;
 
 /**
@@ -41,6 +41,7 @@ public class ChatDatabase {
     static final String CHAT_USER = "CHAT_USER";
     static final String FRIEND = "FRIEND_RELATIONSHIP";
     static final String CON = "CONVERSATION";
+    static final String GROUP = "GROUP_RELATIONSHIP";
 
     private static HashMap<Integer, ClientConnection> clientList;
 
@@ -209,7 +210,7 @@ public class ChatDatabase {
         return list;
     }
 
-    public static String generateNewConversation() {
+    public static String generateNewConversation(String name) {
 
         UUID uuid;
         boolean check = false;
@@ -240,7 +241,7 @@ public class ChatDatabase {
         //add conversation
         try {
             stmt = conn.createStatement();
-            stmt.execute("insert into " + CON + " values ('" + uuid.toString() + "','')");
+            stmt.execute("insert into " + CON + " values ('" + uuid.toString() + "','','" + name + "')");
             stmt.close();
 
         } catch (SQLException ex) {
@@ -273,7 +274,7 @@ public class ChatDatabase {
 
     public static void sendFriendRequest(int userSender, int userReceiver) {
 
-        String newConversation = generateNewConversation();
+        String newConversation = generateNewConversation("");
         Statement stmt = null;
 
         try {
@@ -527,6 +528,42 @@ public class ChatDatabase {
 
         sendStatus(id, "OFFLINE");
     }
+    
+    static void setNotSeenGroup(String id_con, int id_user) {
+        Statement stmt = null;
+        ResultSet result = null;
+
+        try {
+            stmt = conn.createStatement();
+
+            result = stmt.executeQuery("select * from " + GROUP + " where id_con='" + id_con + "' and id_user=" + id_user);
+
+            if (result.next()) {
+                int message_not_seen = result.getInt("MESSAGE_NOT_SEEN");
+                message_not_seen++;
+
+                stmt.execute("update " + GROUP + " set message_not_seen=" + message_not_seen + " where id_con='" + id_con + "' and id_user=" + id_user);
+            }
+
+            stmt.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(ChatDatabase.class.getName()).log(Level.SEVERE, null, ex);
+        }        
+    }
+    
+    static void setSeenGroup(String id_con, int id_user) {
+        Statement stmt = null;
+
+        try {
+            stmt = conn.createStatement();
+
+            stmt.execute("update " + GROUP + " set message_not_seen=" + 0 + " where id_con='" + id_con + "' and id_user=" + id_user);
+
+            stmt.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(ChatDatabase.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
 
     static void setNotSeen(String id_con, int id_user) {
         Statement stmt = null;
@@ -562,6 +599,261 @@ public class ChatDatabase {
         } catch (SQLException ex) {
             Logger.getLogger(ChatDatabase.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    public static String createGroup(int id_user, String name) {
+        Statement stmt = null;
+
+        String newConversation = generateNewConversation(name);
+
+        try {
+            stmt = conn.createStatement();
+
+            stmt.execute("insert into " + GROUP + " (id_user, id_con, master) values (" + id_user + ", '" + newConversation + "', true)");
+
+            stmt.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(ChatDatabase.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return newConversation;
+    }
+
+    public static boolean checkMaster(int id_sender, String id_con) {
+        Statement stmt = null;
+        ResultSet result = null;
+        boolean isMaster = false;
+
+        try {
+            stmt = conn.createStatement();
+            result = stmt.executeQuery("select * from " + GROUP + " where id_user=" + id_sender + " and id_con='" + id_con + "'");
+
+            if (result.next()) {
+                isMaster = result.getBoolean("MASTER");
+            }
+
+            stmt.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(ChatDatabase.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return isMaster;
+    }
+
+    public static boolean renameGroup(int id_sender, String id_con, String name) {
+        Statement stmt = null;
+        boolean flag = false;
+
+        try {
+            stmt = conn.createStatement();
+
+            if (checkMaster(id_sender, id_con)) {
+                stmt.execute("update " + CON + " set name='" + name + "' where id_con='" + id_con + "'");
+                flag = true;
+            }
+
+            stmt.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(ChatDatabase.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return flag;
+    }
+    
+    public static boolean addUser(int id_sender, String id_con, int id_receiver) {
+        Statement stmt = null;
+        boolean flag = false;
+
+        try {
+            stmt = conn.createStatement();
+
+            if (checkMaster(id_sender, id_con)) {
+                stmt.execute("insert into " + GROUP + " (id_user, id_con, master) values (" + id_receiver + ", '" + id_con + "', false)");
+                flag = true;
+            }
+
+            stmt.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(ChatDatabase.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return flag;
+    }
+
+    static boolean kickUser(int id_sender, String id_con, int id_receiver) {
+        Statement stmt = null;
+        boolean flag = false;
+
+        try {
+            stmt = conn.createStatement();
+
+            if (checkMaster(id_sender, id_con)) {
+                stmt.execute("delete from " + GROUP + " where id_user=" + id_receiver + " and id_con='" + id_con + "'");
+                flag = true;
+            }
+
+            stmt.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(ChatDatabase.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return flag;
+    }
+
+    static boolean leaveConversation(int id_sender, String id_con) {
+        Statement stmt = null;
+        boolean flag = false;
+
+        try {
+            stmt = conn.createStatement();
+
+            if (!checkMaster(id_sender, id_con)) {
+                stmt.execute("delete from " + GROUP + " where id_user=" + id_sender + " and id_con='" + id_con + "'");
+                flag = true;
+            }
+
+            stmt.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(ChatDatabase.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return flag;
+    }
+
+    static boolean passMaster(int id_sender, String id_con, int id_receiver) {
+        Statement stmt = null;
+        boolean flag = false;
+
+        try {
+            stmt = conn.createStatement();
+
+            if (checkMaster(id_sender, id_con)) {
+                stmt.execute("update " + GROUP + " set master=false where id_user=" + id_sender + " and id_con='" + id_con + "'");
+                stmt.execute("update " + GROUP + " set master=true where id_user=" + id_receiver + " and id_con='" + id_con + "'");
+                flag = true;
+            }
+
+            stmt.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(ChatDatabase.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return flag;
+    }
+
+    public static boolean deleteGroup(int id_sender, String id_con) {
+        Statement stmt = null;
+        boolean flag = false;
+
+        try {
+            stmt = conn.createStatement();
+
+            if (checkMaster(id_sender, id_con)) {
+                
+                stmt.execute("delete from " + GROUP + " where id_con='" + id_con + "'");
+                stmt.execute("delete from " + CON + " where id_con='" + id_con + "'");
+                flag = true;
+            }
+
+            stmt.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(ChatDatabase.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return flag;
+    }
+    
+    public static ArrayList<Integer> getGroupMembers(String id_con) {
+        Statement stmt = null;
+        ResultSet result = null;
+        ArrayList<Integer> list = new ArrayList();
+
+        try {
+            stmt = conn.createStatement();
+
+            result = stmt.executeQuery("select * from " + GROUP + " where id_con='" + id_con + "'");
+            
+            while (result.next()) {
+                int id_user = result.getInt("ID_USER");
+                list.add(id_user);
+            }
+
+            stmt.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(ChatDatabase.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return list;
+
+    }
+
+    static ArrayList<GroupConversation> getGroupConversation(int id_user) {
+        Statement stmt = null;
+        ResultSet result = null;
+        
+        Statement stmt_sub = null;
+        ResultSet result_sub = null;
+
+        ArrayList<GroupConversation> list_grpCon = new ArrayList();
+        
+        try {
+            stmt = conn.createStatement();
+            stmt_sub = conn.createStatement();
+            
+            result = stmt.executeQuery("select * from " + GROUP + " where id_user=" + id_user);
+            
+            while (result.next()) {
+                GroupConversation con = new GroupConversation();
+                
+                int message_not_seen = result.getInt("MESSAGE_NOT_SEEN");
+                con.setMessage_not_seen(message_not_seen);
+                
+                String id_con = result.getString("ID_CON");
+                con.setId_con(id_con);
+                
+                ArrayList<ChatUser> list_user = getUserFromConversation(id_con);
+                con.setList_user(list_user);
+                
+                result_sub = stmt_sub.executeQuery("select * from " + CON + " where id_con='" + id_con + "'");
+                
+                result_sub.next();
+                ArrayList<ChatMessage> conversation = parseConversation(result_sub.getString("MESSAGE"));
+                con.setConversation(conversation);
+                
+                list_grpCon.add(con);
+                
+            }
+
+            stmt.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(ChatDatabase.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return list_grpCon;
+    }
+    
+    static ArrayList<ChatUser> getUserFromConversation(String id_con) {
+        Statement stmt = null;
+        ResultSet result = null;
+        ArrayList<ChatUser> list_user = new ArrayList();
+
+        try {
+            stmt = conn.createStatement();
+
+            result = stmt.executeQuery("select * from " + GROUP + " where id_con='" + id_con + "'");
+            
+            while (result.next()) {
+                int id_user = result.getInt("ID_USER");
+                ChatUser user = getChatUser(id_user);
+                list_user.add(user);
+            }
+
+            stmt.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(ChatDatabase.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return list_user;
     }
 
 }
