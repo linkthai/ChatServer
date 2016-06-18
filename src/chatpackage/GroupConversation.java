@@ -55,12 +55,21 @@ public class GroupConversation implements Serializable {
     public void setName(String name) {
         this.name = name;
     }
+
+    public int getId_master() {
+        return id_master;
+    }
+
+    public void setId_master(int id_master) {
+        this.id_master = id_master;
+    }
     
     private ArrayList<ChatMessage> conversation;    
     private ArrayList<ChatUser> list_user;
     private String id_con;
     private int message_not_seen;
     private String name;
+    private int id_master;
     
     public GroupConversation() {
         

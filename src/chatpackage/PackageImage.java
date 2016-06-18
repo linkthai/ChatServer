@@ -46,16 +46,44 @@ public class PackageImage extends ChatPackage {
     public void setId_image(String id_image) {
         this.id_image = id_image;
     }
+
+    public boolean isUpload() {
+        return upload;
+    }
+
+    public void setUpload(boolean upload) {
+        this.upload = upload;
+    }
+
+    public String getExtension() {
+        return extension;
+    }
+
+    public void setExtension(String extension) {
+        this.extension = extension;
+    }
     
     private int id_sender;
     private String id_con;
     private BufferedImage image;
     private String id_image;
+    private String extension;
+    private boolean upload;
     
     public PackageImage(int id_sender, String id_con, BufferedImage image) {
+        this.type = "IMAGE";
         this.id_sender = id_sender;
         this.id_con = id_con;
         this.image = image;
+        this.setUpload(true);
+    }
+    
+    public PackageImage(int id_sender, String id_con, String id_image) {
+        this.type = "IMAGE";
+        this.id_sender = id_sender;
+        this.id_con = id_con;
+        this.id_image = id_image;
+        this.setUpload(false);
     }
     
 }

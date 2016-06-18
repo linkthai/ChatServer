@@ -5,6 +5,11 @@
  */
 package chatserver;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  *
  * @author Link
@@ -97,8 +102,6 @@ public class ChatServerUI extends javax.swing.JFrame {
         if (!server.startServer())
             return;
         
-        //initClient(false);
-        //initClient(true);
         btn_start.setEnabled(false);
     }//GEN-LAST:event_btn_startActionPerformed
 

@@ -10,6 +10,7 @@ import chatpackage.ChatUser;
 import chatpackage.GroupConversation;
 import chatpackage.PackageConversation;
 import chatpackage.PackageStatus;
+import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -42,6 +43,7 @@ public class ChatDatabase {
     static final String FRIEND = "FRIEND_RELATIONSHIP";
     static final String CON = "CONVERSATION";
     static final String GROUP = "GROUP_RELATIONSHIP";
+    static final String FILE = "FILE_TRANSFER";
 
     private static HashMap<Integer, ClientConnection> clientList;
 
@@ -55,11 +57,18 @@ public class ChatDatabase {
 
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | SQLException except) {
 
-            JOptionPane.showMessageDialog(null, except.getClass(), null, JOptionPane.PLAIN_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Can't connect to database");
             return false;
         }
 
+        initFolders();
+
         return CheckValid();
+    }
+
+    public static void initFolders() {
+        File f = new File("File");
+        f.mkdirs();
     }
 
     public static void RegisterClient(ClientConnection client) {
@@ -528,7 +537,7 @@ public class ChatDatabase {
 
         sendStatus(id, "OFFLINE");
     }
-    
+
     static void setNotSeenGroup(String id_con, int id_user) {
         Statement stmt = null;
         ResultSet result = null;
@@ -548,9 +557,9 @@ public class ChatDatabase {
             stmt.close();
         } catch (SQLException ex) {
             Logger.getLogger(ChatDatabase.class.getName()).log(Level.SEVERE, null, ex);
-        }        
+        }
     }
-    
+
     static void setSeenGroup(String id_con, int id_user) {
         Statement stmt = null;
 
@@ -659,7 +668,7 @@ public class ChatDatabase {
 
         return flag;
     }
-    
+
     public static boolean addUser(int id_sender, String id_con, int id_receiver, ChatUser user) {
         Statement stmt = null;
         boolean flag = false;
@@ -676,7 +685,7 @@ public class ChatDatabase {
         } catch (SQLException ex) {
             Logger.getLogger(ChatDatabase.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         user = ChatDatabase.getChatUser(id_receiver);
 
         return flag;
@@ -751,7 +760,7 @@ public class ChatDatabase {
             stmt = conn.createStatement();
 
             if (checkMaster(id_sender, id_con)) {
-                
+
                 stmt.execute("delete from " + GROUP + " where id_con='" + id_con + "'");
                 stmt.execute("delete from " + CON + " where id_con='" + id_con + "'");
                 flag = true;
@@ -764,7 +773,7 @@ public class ChatDatabase {
 
         return flag;
     }
-    
+
     public static ArrayList<Integer> getGroupMembers(String id_con) {
         Statement stmt = null;
         ResultSet result = null;
@@ -774,7 +783,7 @@ public class ChatDatabase {
             stmt = conn.createStatement();
 
             result = stmt.executeQuery("select * from " + GROUP + " where id_con='" + id_con + "'");
-            
+
             while (result.next()) {
                 int id_user = result.getInt("ID_USER");
                 list.add(id_user);
@@ -784,7 +793,7 @@ public class ChatDatabase {
         } catch (SQLException ex) {
             Logger.getLogger(ChatDatabase.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         return list;
 
     }
@@ -792,51 +801,84 @@ public class ChatDatabase {
     static ArrayList<GroupConversation> getGroupConversation(int id_user) {
         Statement stmt = null;
         ResultSet result = null;
-        
+
         Statement stmt_sub = null;
         ResultSet result_sub = null;
 
         ArrayList<GroupConversation> list_grpCon = new ArrayList();
-        
+
         try {
             stmt = conn.createStatement();
             stmt_sub = conn.createStatement();
-            
+            int id_master = 0;
+
             result = stmt.executeQuery("select * from " + GROUP + " where id_user=" + id_user);
-            
+
             while (result.next()) {
                 GroupConversation con = new GroupConversation();
-                
+
                 int message_not_seen = result.getInt("MESSAGE_NOT_SEEN");
                 con.setMessage_not_seen(message_not_seen);
-                
+
                 String id_con = result.getString("ID_CON");
                 con.setId_con(id_con);
-                
+
+                if (result.getBoolean("MASTER")) {
+                    id_master = id_user;
+                } else {
+                    getIdMasterOfCon(id_con);
+                }
+
                 ArrayList<ChatUser> list_user = getUserFromConversation(id_con);
                 con.setList_user(list_user);
-                
+
                 result_sub = stmt_sub.executeQuery("select * from " + CON + " where id_con='" + id_con + "'");
-                
+
                 result_sub.next();
                 ArrayList<ChatMessage> conversation = parseConversation(result_sub.getString("MESSAGE"));
                 con.setConversation(conversation);
-                
+
                 String name = result_sub.getString("NAME");
                 con.setName(name);
-                
+
                 list_grpCon.add(con);
-                
+
+            }
+
+            stmt.close();
+            stmt_sub.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(ChatDatabase.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return list_grpCon;
+    }
+
+    static int getIdMasterOfCon(String id_con) {
+        Statement stmt = null;
+        ResultSet result = null;
+        int id_master = 0;
+
+        try {
+            stmt = conn.createStatement();
+
+            result = stmt.executeQuery("select * from " + GROUP + " where id_con='" + id_con + "'");
+
+            while (result.next()) {
+                if (result.getBoolean("MASTER")) {
+                    id_master = result.getInt("ID_USER");
+                    break;
+                }
             }
 
             stmt.close();
         } catch (SQLException ex) {
             Logger.getLogger(ChatDatabase.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
-        return list_grpCon;
+
+        return id_master;
     }
-    
+
     static ArrayList<ChatUser> getUserFromConversation(String id_con) {
         Statement stmt = null;
         ResultSet result = null;
@@ -846,7 +888,7 @@ public class ChatDatabase {
             stmt = conn.createStatement();
 
             result = stmt.executeQuery("select * from " + GROUP + " where id_con='" + id_con + "'");
-            
+
             while (result.next()) {
                 int id_user = result.getInt("ID_USER");
                 ChatUser user = getChatUser(id_user);
@@ -857,8 +899,48 @@ public class ChatDatabase {
         } catch (SQLException ex) {
             Logger.getLogger(ChatDatabase.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         return list_user;
     }
+    
+    public static String generateNewFile(String name, String extension) {
 
+        UUID uuid;
+        boolean check = false;
+        ResultSet result = null;
+        Statement stmt = null;
+
+        //generate a unique id
+        do {
+            uuid = UUID.randomUUID();
+
+            try {
+                stmt = conn.createStatement();
+                result = stmt.executeQuery("select * from " + FILE + " where id_file='" + uuid.toString() + "'");
+
+                if (result.next()) {
+                    check = false;
+                } else {
+                    check = true;
+                }
+                stmt.close();
+
+            } catch (SQLException ex) {
+                Logger.getLogger(ChatDatabase.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+        } while (check == false);
+
+        //add conversation
+        try {
+            stmt = conn.createStatement();
+            stmt.execute("insert into " + FILE + " values ('" + uuid.toString() + "','" + extension + "','" + name + "')");
+            stmt.close();
+
+        } catch (SQLException ex) {
+            Logger.getLogger(ChatDatabase.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return uuid.toString();
+    }
 }

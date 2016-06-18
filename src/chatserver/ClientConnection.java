@@ -8,6 +8,7 @@ package chatserver;
 import chatpackage.*;
 
 import chatpackage.PackageLogin;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -16,6 +17,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 
 /**
@@ -276,7 +278,6 @@ public class ClientConnection extends Thread {
             for (Integer i : grp_list) {
                 ChatDatabase.SendObject(message, i);
             }
-
         } else {
             ChatDatabase.setNotSeen(message.getId_con(), id);
             ChatDatabase.SendObject(message, message.getReceiver());
@@ -381,7 +382,31 @@ public class ClientConnection extends Thread {
     private void beginImage(ChatPackage inputPackage) {
         PackageImage image = (PackageImage) inputPackage;
         
-        
+        if (image.isUpload())
+        {
+            String id_image = ChatDatabase.generateNewFile("", image.getExtension());
+            File f = new File("File//" + id_image + "." + image.getExtension());
+
+            try {
+                ImageIO.write(image.getImage(), image.getExtension(), f);
+            } catch (IOException ex) {
+                Logger.getLogger(ClientConnection.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+            image.setId_image(id_image);
+            sendObject(image);
+        }
+        else
+        {
+            File f = new File("File//" + image.getId_image() + "." + image.getExtension());
+            try {
+                BufferedImage newImage = ImageIO.read(f);
+                image.setImage(newImage);
+            } catch (IOException ex) {
+                Logger.getLogger(ClientConnection.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            sendObject(image);
+        }
     }
 
 }
