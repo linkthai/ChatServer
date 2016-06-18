@@ -235,6 +235,7 @@ public class ClientConnection extends Thread {
                 ChatDatabase.deleteFriend(id, request.getUserSender());
             }
 
+            request.setUser(ChatDatabase.getChatUser(id));
             ChatDatabase.SendObject(request, request.getUserSender());
 
         }

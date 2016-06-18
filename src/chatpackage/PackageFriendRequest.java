@@ -17,6 +17,15 @@ public class PackageFriendRequest extends ChatPackage {
     private int userReceiver;
     private boolean request;
     private boolean accept;
+    private ChatUser user;
+
+    public ChatUser getUser() {
+        return user;
+    }
+
+    public void setUser(ChatUser user) {
+        this.user = user;
+    }
 
     public boolean isRequest() {
         return request;
