@@ -762,6 +762,7 @@ public class ChatDatabase {
             if (checkMaster(id_sender, id_con)) {
 
                 stmt.execute("delete from " + GROUP + " where id_con='" + id_con + "'");
+                deleteFileFromCon(id_con);
                 stmt.execute("delete from " + CON + " where id_con='" + id_con + "'");
                 flag = true;
             }
@@ -903,7 +904,7 @@ public class ChatDatabase {
 
         return list_user;
     }
-    
+
     public static String generateNewFile(String name, String extension) {
 
         UUID uuid;
@@ -943,5 +944,42 @@ public class ChatDatabase {
         }
 
         return uuid.toString();
+    }
+
+    private static void deleteFileFromCon(String id_con) {
+        Statement stmt = null;
+        ResultSet result = null;
+
+        try {
+            stmt = conn.createStatement();
+
+            result = stmt.executeQuery("select * from " + CON + " where id_con='" + id_con + "'");
+
+            if (result.next()) {
+                String[] parts = result.getString("MESSAGE").split("[|]");
+
+                for (int i = 0; i < parts.length; i++) {
+
+                    if ("".equals(parts[i])) {
+                        continue;
+                    }
+                    
+                    //skip id
+                    i++;
+                    //get type
+                    String type = parts[i];
+                    i++;
+                    if (type.equals("IMAGE")) {
+                        String id_file = parts[i];
+                        stmt.execute("delete from " + FILE + " where id_file='" + id_file + "'");
+                    }
+                }
+
+            }
+
+            stmt.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(ChatDatabase.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 }
