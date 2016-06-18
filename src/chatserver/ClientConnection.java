@@ -222,6 +222,7 @@ public class ClientConnection extends Thread {
             }
 
             ChatDatabase.sendFriendRequest(request.getUserSender(), request.getUserReceiver());
+            request.setUser(ChatDatabase.getChatUser(request.getUserReceiver()));
 
             //send request if user online
             if (ChatDatabase.CheckOnlineStatus(request.getUserReceiver())) {
