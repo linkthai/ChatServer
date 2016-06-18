@@ -826,8 +826,9 @@ public class ChatDatabase {
                 if (result.getBoolean("MASTER")) {
                     id_master = id_user;
                 } else {
-                    getIdMasterOfCon(id_con);
+                    id_master = getIdMasterOfCon(id_con);
                 }
+                con.setId_master(id_master);
 
                 ArrayList<ChatUser> list_user = getUserFromConversation(id_con);
                 con.setList_user(list_user);
