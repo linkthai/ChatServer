@@ -74,4 +74,8 @@ public class PackageMessage extends ChatPackage {
         this.id_con = id_con;
         message = new ChatMessage(sender, text);
     }
+    
+    public PackageMessage() {
+        this.type = "MESSAGE";
+    }
 }

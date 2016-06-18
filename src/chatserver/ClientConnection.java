@@ -222,7 +222,7 @@ public class ClientConnection extends Thread {
             }
 
             ChatDatabase.sendFriendRequest(request.getUserSender(), request.getUserReceiver());
-            request.setUser(ChatDatabase.getChatUser(request.getUserReceiver()));
+            request.setUser(ChatDatabase.getChatUser(request.getUserSender()));
 
             //send request if user online
             if (ChatDatabase.CheckOnlineStatus(request.getUserReceiver())) {
@@ -236,7 +236,7 @@ public class ClientConnection extends Thread {
                 ChatDatabase.deleteFriend(id, request.getUserSender());
             }
 
-            request.setUser(ChatDatabase.getChatUser(request.getUserSender()));
+            request.setUser(ChatDatabase.getChatUser(request.getUserReceiver()));
             ChatDatabase.SendObject(request, request.getUserSender());
 
         }
