@@ -339,9 +339,8 @@ public class ClientConnection extends Thread {
                 flag = ChatDatabase.renameGroup(group.getId_sender(), group.getId_con(), group.getName());
                 break;
             case "ADD":
-                ChatUser userAdded = new ChatUser();
-                flag = ChatDatabase.addUser(group.getId_sender(), group.getId_con(), group.getId_receiver(), userAdded);
-                group.setUser(userAdded);
+                flag = ChatDatabase.addUser(group.getId_sender(), group.getId_con(), group.getId_receiver());
+                group.setUser(ChatDatabase.getChatUser(group.getId_receiver()));
                 break;
             case "KICK":
                 flag = ChatDatabase.kickUser(group.getId_sender(), group.getId_con(), group.getId_receiver());
