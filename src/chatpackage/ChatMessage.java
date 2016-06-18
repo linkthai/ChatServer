@@ -5,6 +5,7 @@
  */
 package chatpackage;
 
+import java.awt.image.BufferedImage;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -19,6 +20,15 @@ public class ChatMessage implements Serializable {
     Date date;
     private String type = "";
     private String content = "";
+    private BufferedImage image;
+
+    public BufferedImage getImage() {
+        return image;
+    }
+
+    public void setImage(BufferedImage image) {
+        this.image = image;
+    }
 
     public Date getDate() {
         return date;
@@ -61,4 +71,10 @@ public class ChatMessage implements Serializable {
         this.sender = sender;
     }
     
+    public ChatMessage(int sender, BufferedImage image)
+    {
+        this.type = "IMAGE";
+        this.date = new Date();
+        this.sender = sender;
+    }
 }

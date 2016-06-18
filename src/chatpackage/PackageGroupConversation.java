@@ -21,6 +21,15 @@ public class PackageGroupConversation extends ChatPackage {
     private int id_receiver;
     private String name;
     private ArrayList<GroupConversation> list_con;
+    private ChatUser user;
+
+    public ChatUser getUser() {
+        return user;
+    }
+
+    public void setUser(ChatUser user) {
+        this.user = user;
+    }
 
     public ArrayList<GroupConversation> getList_con() {
         return list_con;

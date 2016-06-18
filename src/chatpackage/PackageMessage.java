@@ -66,4 +66,12 @@ public class PackageMessage extends ChatPackage {
         this.groupMessage = false;
         message = new ChatMessage(sender, text);
     }
+    
+    public PackageMessage(int sender, String id_con, String text) {
+        this.type = "MESSAGE";
+        this.sender = sender;
+        this.groupMessage = true;
+        this.id_con = id_con;
+        message = new ChatMessage(sender, text);
+    }
 }

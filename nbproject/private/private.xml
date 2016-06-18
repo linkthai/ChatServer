@@ -9,6 +9,7 @@
             <file>file:/C:/Users/Huzky/Documents/NetBeansProjects/ChatServer/src/chatpackage/PackageSearchUser.java</file>
             <file>file:/C:/Users/Huzky/Documents/NetBeansProjects/ChatServer/src/chatpackage/ChatPackage.java</file>
             <file>file:/C:/Users/Huzky/Documents/NetBeansProjects/ChatServer/src/chatpackage/PackageFriendList.java</file>
+            <file>file:/C:/Users/Huzky/Documents/NetBeansProjects/ChatServer/src/chatpackage/PackageFriendRequest.java</file>
             <file>file:/C:/Users/Huzky/Documents/NetBeansProjects/ChatServer/src/chatpackage/ChatMessage.java</file>
             <file>file:/C:/Users/Huzky/Documents/NetBeansProjects/ChatServer/src/chatpackage/PackageConversation.java</file>
             <file>file:/C:/Users/Huzky/Documents/NetBeansProjects/ChatServer/src/chatpackage/PackageRegister.java</file>
@@ -18,9 +19,11 @@
             <file>file:/C:/Users/Huzky/Documents/NetBeansProjects/ChatServer/src/chatserver/ChatDatabase.java</file>
             <file>file:/C:/Users/Huzky/Documents/NetBeansProjects/ChatServer/src/chatpackage/PackageStatus.java</file>
             <file>file:/C:/Users/Huzky/Documents/NetBeansProjects/ChatServer/src/chatpackage/PackageMessage.java</file>
+            <file>file:/C:/Users/Huzky/Documents/NetBeansProjects/ChatServer/src/chatpackage/PackageImage.java</file>
             <file>file:/C:/Users/Huzky/Documents/NetBeansProjects/ChatServer/src/chatserver/ChatServer.java</file>
             <file>file:/C:/Users/Huzky/Documents/NetBeansProjects/ChatServer/src/chatpackage/GroupConversation.java</file>
             <file>file:/C:/Users/Huzky/Documents/NetBeansProjects/ChatServer/src/chatpackage/ChatUser.java</file>
+            <file>file:/C:/Users/Huzky/Documents/NetBeansProjects/ChatServer/src/chatpackage/PackageFriendDelete.java</file>
         </group>
     </open-files>
 </project-private>

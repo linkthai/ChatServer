@@ -660,7 +660,7 @@ public class ChatDatabase {
         return flag;
     }
     
-    public static boolean addUser(int id_sender, String id_con, int id_receiver) {
+    public static boolean addUser(int id_sender, String id_con, int id_receiver, ChatUser user) {
         Statement stmt = null;
         boolean flag = false;
 
@@ -676,6 +676,8 @@ public class ChatDatabase {
         } catch (SQLException ex) {
             Logger.getLogger(ChatDatabase.class.getName()).log(Level.SEVERE, null, ex);
         }
+        
+        user = ChatDatabase.getChatUser(id_receiver);
 
         return flag;
     }

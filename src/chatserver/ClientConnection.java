@@ -8,12 +8,10 @@ package chatserver;
 import chatpackage.*;
 
 import chatpackage.PackageLogin;
-import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.logging.Level;
@@ -96,6 +94,9 @@ public class ClientConnection extends Thread {
             case "FRIEND_LIST":
                 beginFriendList(inputPackage);
                 break;
+            case "FRIEND_DELETE":
+                beginDeleteFriend(inputPackage);
+                break;
             case "STATUS":
                 beginStatus(inputPackage);
                 break;
@@ -104,6 +105,9 @@ public class ClientConnection extends Thread {
                 break;
             case "MESSAGE":
                 beginMessage(inputPackage);
+                break;
+            case "IMAGE":
+                beginImage(inputPackage);
                 break;
             case "SEEN":
                 beginSeen(inputPackage);
@@ -334,7 +338,9 @@ public class ClientConnection extends Thread {
                 flag = ChatDatabase.renameGroup(group.getId_sender(), group.getId_con(), group.getName());
                 break;
             case "ADD":
-                flag = ChatDatabase.addUser(group.getId_sender(), group.getId_con(), group.getId_receiver());
+                ChatUser userAdded = new ChatUser();
+                flag = ChatDatabase.addUser(group.getId_sender(), group.getId_con(), group.getId_receiver(), userAdded);
+                group.setUser(userAdded);
                 break;
             case "KICK":
                 flag = ChatDatabase.kickUser(group.getId_sender(), group.getId_con(), group.getId_receiver());
@@ -362,6 +368,20 @@ public class ClientConnection extends Thread {
             }
         }
 
+    }
+
+    private void beginDeleteFriend(ChatPackage inputPackage) {
+        PackageFriendDelete delete = (PackageFriendDelete) inputPackage;
+        
+        ChatDatabase.deleteFriend(delete.getSender(), delete.getReceiver());
+        sendObject(delete);
+        ChatDatabase.SendObject(delete, delete.getReceiver());
+    }
+
+    private void beginImage(ChatPackage inputPackage) {
+        PackageImage image = (PackageImage) inputPackage;
+        
+        
     }
 
 }
