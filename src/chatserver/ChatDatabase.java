@@ -61,9 +61,21 @@ public class ChatDatabase {
             return false;
         }
 
-        initFolders();
+        //initFolders();
 
         return CheckValid();
+    }
+    
+    public static void StopConnection() {
+        
+        if (conn == null)
+            return;
+        
+        try {
+            DriverManager.getConnection("jdbc:derby://localhost:1527/ChatManager;shutdown=true", USER, PASS);
+        } catch (SQLException ex) {
+            Logger.getLogger(ChatDatabase.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     public static void initFolders() {
@@ -331,6 +343,8 @@ public class ChatDatabase {
             //delete both friend relationship
             stmt.execute("delete from " + FRIEND + " where userA=" + userA + " and userB=" + userB);
             stmt.execute("delete from " + FRIEND + " where userA=" + userB + " and userB=" + userA);
+
+            deleteFileFromCon(conversation);
 
             //delete conversation
             stmt.execute("delete from " + CON + " where id_con='" + conversation + "'");
@@ -946,6 +960,10 @@ public class ChatDatabase {
     }
 
     private static void deleteFileFromCon(String id_con) {
+        
+        if (true)
+            return;
+        
         Statement stmt = null;
         ResultSet result = null;
 
@@ -962,7 +980,7 @@ public class ChatDatabase {
                     if ("".equals(parts[i])) {
                         continue;
                     }
-                    
+
                     //skip id
                     i++;
                     //get type
@@ -984,15 +1002,15 @@ public class ChatDatabase {
 
     static void clearConversation(String id_con) {
         Statement stmt = null;
-        
+
         deleteFileFromCon(id_con);
 
         try {
             stmt = conn.createStatement();
 
             String dummy = "";
-            stmt.execute("update " + CON + " set MESSAGE='"+ dummy + "' where id_con='" + id_con + "'");
-            
+            stmt.execute("update " + CON + " set MESSAGE='" + dummy + "' where id_con='" + id_con + "'");
+
             stmt.close();
         } catch (SQLException ex) {
             Logger.getLogger(ChatDatabase.class.getName()).log(Level.SEVERE, null, ex);
