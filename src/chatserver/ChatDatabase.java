@@ -304,7 +304,8 @@ public class ChatDatabase {
         Statement stmt = null;
         try {
             stmt = conn.createStatement();
-            stmt.execute("update " + FRIEND + " set CONFIRM=TRUE where userA=" + userReceiver + " and userB=" + userSender);
+            stmt.execute("update " + FRIEND + " set confirm=true where userA=" + userReceiver + " and userB=" + userSender);
+            stmt.execute("update " + FRIEND + " set confirm=true where userB=" + userReceiver + " and userA=" + userSender);
             stmt.close();
 
         } catch (SQLException ex) {
