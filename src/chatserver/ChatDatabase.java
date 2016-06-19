@@ -990,7 +990,8 @@ public class ChatDatabase {
         try {
             stmt = conn.createStatement();
 
-            stmt.executeQuery("update " + CON + " set message='' where id_con='" + id_con + "'");
+            String dummy = "";
+            stmt.execute("update " + CON + " set MESSAGE='"+ dummy + "' where id_con='" + id_con + "'");
             
             stmt.close();
         } catch (SQLException ex) {
