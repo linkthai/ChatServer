@@ -71,10 +71,11 @@ public class ChatMessage implements Serializable {
         this.sender = sender;
     }
     
-    public ChatMessage(int sender, BufferedImage image)
+    public ChatMessage(int sender, String id_message, String type)
     {
-        this.type = "IMAGE";
+        this.type = type;
         this.date = new Date();
         this.sender = sender;
+        this.content = id_message;
     }
 }

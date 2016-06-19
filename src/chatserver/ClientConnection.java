@@ -114,6 +114,9 @@ public class ClientConnection extends Thread {
             case "SEEN":
                 beginSeen(inputPackage);
                 break;
+            case "CLEAR":
+                beginClear(inputPackage);
+                break;
             case "GROUP_CONVERSATION":
                 beginGroupConversation(inputPackage);
                 break;
@@ -409,6 +412,14 @@ public class ClientConnection extends Thread {
             }
             sendObject(image);
         }
+    }
+
+    private void beginClear(ChatPackage inputPackage) {
+        PackageClearConversation clear = (PackageClearConversation) inputPackage;
+        
+        ChatDatabase.clearConversation(clear.getId_con());
+        sendObject(clear);
+        ChatDatabase.SendObject(clear, clear.getReceiver());
     }
 
 }

@@ -75,7 +75,13 @@ public class PackageMessage extends ChatPackage {
         message = new ChatMessage(sender, text);
     }
     
-    public PackageMessage() {
+    public PackageMessage(int sender, String id_con, String id_image, String message_type) {
         this.type = "MESSAGE";
+        
+        switch (message_type) {
+            case "IMAGE":
+                message = new ChatMessage(sender, id_image, message_type);
+                break;
+        }
     }
 }

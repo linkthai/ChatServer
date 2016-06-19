@@ -980,4 +980,20 @@ public class ChatDatabase {
             Logger.getLogger(ChatDatabase.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+
+    static void clearConversation(String id_con) {
+        Statement stmt = null;
+        
+        deleteFileFromCon(id_con);
+
+        try {
+            stmt = conn.createStatement();
+
+            stmt.executeQuery("update " + CON + " set message='' where id_con='" + id_con + "'");
+            
+            stmt.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(ChatDatabase.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
 }
